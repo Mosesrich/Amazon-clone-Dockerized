@@ -17,14 +17,15 @@ pipeline {
         // run sonarqube test
         stage('Run Sonarqube') {
             environment {
-                scannerHome = tool 'ibt-sonarqube';
+                scannerHome = tool 'sonar-scanner';
             }
             steps {
-              withSonarQubeEnv(credentialsId: 'ibt-sonar', installationName: 'IBT sonarqube') {
+              withSonarQubeEnv(credentialsId: 'sonar-token', installationName: 'sonar-server') {
                 sh "${scannerHome}/bin/sonar-scanner"
               }
             }
         }
+
         stage('login to dockerhub') {
             steps{
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
