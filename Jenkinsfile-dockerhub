@@ -35,6 +35,11 @@ pipeline {
             steps {  
                 sh 'docker build -t $APP_NAME:$BUILD_NUMBER .'
             }
+        } 
+        stage('Reduce image size') {
+            steps {
+        sh 'docker-slim --target $APP_NAME:$BUILD_NUMBER --http-port 80 --exec "apt-get clean -y && rm -rf /var/lib/apt/lists/*"'
+            }
         }
         stage('push image') {
             steps{
@@ -48,11 +53,26 @@ pipeline {
             } 
            } 
         }
-    post { 
-        always { 
-           //slackSend message: 'Pipeline completed - Build deployed successfully '
-           slackSend color: "good", message: "Build Deployed Successfully, Downstream Job Triggered"
-           }
+
+    post {
+      always {
+         email (
+            to: 'mosesdollarokojie@gmail.com',
+            subject: 'Build Notification',
+            html: '''
+            <html>
+                <body>
+                    <h1>Build Notification</h1>
+                    <p>Build Deployed Successfully!</p>
+                    <p>Build Status: ${BUILD_STATUS}</p>
+                    <p>Build Number: ${BUILD_NUMBER}</p>
+                </body>
+            </html>
+            ''',
+            from: 'jenkins@example.com',
+            replyTo: 'jenkins@example.com'
+        )
     }
+}
 }
 
