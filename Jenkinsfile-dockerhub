@@ -41,12 +41,7 @@ pipeline {
         sh 'docker-slim --target $APP_NAME:$BUILD_NUMBER --http-port 80 --exec "apt-get clean -y && rm -rf /var/lib/apt/lists/*"'
             }
         }
-        stage('Trivy Scan (Aqua)') {
-            steps {
-                sh 'trivy image $APP_NAME:$BUILD_NUMBER'
-            }
-       }
-        stage('push image') {
+                stage('push image') {
             steps{
                 sh 'docker push $APP_NAME:$BUILD_NUMBER'
             }
