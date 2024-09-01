@@ -1,22 +1,34 @@
-FROM node:lts-buster-slim as base
-ARG NODE_ENV=productions
+# Stage 1: Build the application
+FROM node:lts-buster-slim AS builder
+
+ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /usr/src/app
 
+# Copy the package.json and yarn.lock files to install dependencies
 COPY package.json .
 COPY yarn.lock .
 
-RUN yarn install 
+RUN yarn install
 
-# Reduce the image size using multi-stage builds
-# We will use a distroless image to run the application
-FROM gcr.io/distroless/base
+# Copy the entire project
+COPY . .
 
-# Copy the binary from the previous stage
-COPY --from=base /app .
+# Build the application (if there is a build step, otherwise this step can be omitted)
+RUN yarn build
 
-# Copy the files from the previous stage
-COPY --from=base . . 
+# Stage 2: Use a distroless image to run the application
+FROM gcr.io/distroless/nodejs:16
 
+# Set the working directory in the distroless image
+WORKDIR /usr/src/app
+
+# Copy the built application from the builder stage
+COPY --from=builder /usr/src/app /usr/src/app
+
+# Expose the application port (if needed)
+EXPOSE 3000
+
+# Command to run the application
 CMD ["yarn", "start"]
