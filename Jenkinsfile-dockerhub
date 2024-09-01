@@ -37,16 +37,6 @@ pipeline {
             }
         }
 
-        stage('Reduce image size') {
-           steps {
-              sh '''
-              docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-              -v $(pwd):/workspace --workdir /workspace \
-              docker-slim/slim build --target $APP_NAME:$BUILD_NUMBER --http-probe=false
-              '''
-            }
-        }
-
         stage('push image') {
             steps{
                 sh 'docker push $APP_NAME:$BUILD_NUMBER'
