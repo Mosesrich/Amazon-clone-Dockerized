@@ -35,13 +35,15 @@ pipeline {
             steps {  
                 sh 'docker build -t $APP_NAME:$BUILD_NUMBER .'
             }
-        } 
-        stage('Reduce image size') {
-            steps {
-        sh 'docker-slim build --target $APP_NAME:$BUILD_NUMBER --http-port 80 --exec "apt-get clean -y && rm -rf /var/lib/apt/lists/*"'
-            }
         }
-                stage('push image') {
+
+        stage('Reduce image size') {
+           steps {
+        // Disable HTTP probing if not needed
+        sh 'docker-slim build --target $APP_NAME:$BUILD_NUMBER --http-probe=false'
+            }
+       }
+        stage('push image') {
             steps{
                 sh 'docker push $APP_NAME:$BUILD_NUMBER'
             }
