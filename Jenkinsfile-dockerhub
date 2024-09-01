@@ -6,7 +6,7 @@ pipeline {
      }
     environment {
     DOCKERHUB_CREDENTIALS = credentials('okojie-docker')
-    APP_NAME = "mosesrich/amazon"
+    APP_NAME = "mosesrich/amazon-app"
     }
     stages { 
         stage('SCM Checkout') {
